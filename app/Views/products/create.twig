@@ -1,4 +1,24 @@
 {% extends "app.twig" %}
+
+{% block user %}
+    <div class="container">
+        <div class="row user-container">
+            {% if session.email is defined %}
+                <p class="loginUser">Hello, {{ session.username }}</p>
+                <p class="loginUser">{{ session.email }}</p>
+                <br>
+                <a href='/logout' class='btn btn-warning w-50'>
+                    <i class="fa fa-sign-out"></i> Sign out
+                </a><br>
+            {% else %}
+                <a href='/login' class='btn btn-warning'>
+                    <i class="fa fa-sign-in"></i> Sign in
+                </a><br>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <div class="row">

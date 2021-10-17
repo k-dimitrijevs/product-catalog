@@ -1,0 +1,34 @@
+{% extends "app.twig" %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-6">
+                <h3>REGISTER:</h3>
+                <div class="form-group">
+                    <form action="/register" method="post">
+                        <label for="email" class="form-label">E-mail:</label>
+                        <input type="email" class="form-control w-75" name="email" placeholder="Enter your e-mail" required/><br>
+
+                        <label for="username" class="form-label">Username:</label>
+                        <input type="text" class="form-control w-75" name="username" placeholder="Enter your username" required/><br>
+
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" class="form-control w-75" name="password" placeholder="Enter your password" required/><br>
+
+                        <label for="password-confirm" class="form-label">Confirm Password:</label>
+                        <input type="password" class="form-control w-75" name="password-confirm" placeholder="Confirm your password" required/><br>
+
+                        <button type="submit" name="register" class="btn btn-primary">Register</button><br><br>
+                    </form>
+                </div>
+            </div>
+            <div class="col-6">
+                <h3 class="have-acc">Already have an account?</h3>
+                <a href="/login"><h4 class="sign-in-btn btn btn-primary">Click here to sign in!</h4></a>
+
+                <h3 class="have-acc">See without registering or logging in</h3>
+                <a href="/"><h4 class="sign-in-btn btn btn-primary">View Catalog</h4></a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
