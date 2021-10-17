@@ -7,16 +7,20 @@ use App\Models\User;
 use App\Redirect;
 use App\Repositories\MysqlUsersRepository;
 use App\Repositories\UsersRepository;
+use App\Validations\FormValidationException;
 use App\View;
 use Ramsey\Uuid\Uuid;
+use App\Validations\UsersFormValidation;
 
 class UsersController
 {
     private UsersRepository $usersRepository;
+    private UsersFormValidation $validator;
 
     public function __construct()
     {
         $this->usersRepository = new MysqlUsersRepository();
+        $this->validator = new UsersFormValidation();
     }
 
     public function login(): void
@@ -25,12 +29,21 @@ class UsersController
 
         $user = $this->usersRepository->getByEmail($_POST['email']);
 
+//        try {
+//            $this->validator->loginValidation($_POST);
+//            $_SESSION['email'] = $user->getEmail();
+//            $_SESSION['username'] = $user->getUsername();
+//            Redirect::url('/products');
+//        } catch (FormValidationException $exception)
+//        {
+//            $_SESSION['_errors'] = $this->validator->getErrors();
+//            Redirect::url('/login');
+//        }
         if ($user !== null && password_verify($_POST['password'], $user->getPassword()))
         {
             $_SESSION['email'] = $user->getEmail();
             $_SESSION['username'] = $user->getUsername();
             Redirect::url('/products');
-            exit;
         }
 
         Redirect::url('/login');

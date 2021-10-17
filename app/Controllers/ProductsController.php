@@ -6,16 +6,20 @@ use App\Models\Product;
 use App\Redirect;
 use App\Repositories\MySqlProductsRepository;
 use App\Repositories\ProductsRepository;
+use App\Validations\FormValidationException;
+use App\Validations\ProductsFormValidation;
 use App\View;
 use Ramsey\Uuid\Uuid;
 
 class ProductsController
 {
     private ProductsRepository $productsRepository;
+    private ProductsFormValidation $validator;
 
     public function __construct()
     {
         $this->productsRepository = new MySqlProductsRepository();
+        $this->validator = new ProductsFormValidation();
     }
 
     public function index(): View
@@ -30,7 +34,6 @@ class ProductsController
     public function search(): View
     {
         $products = $this->productsRepository->searchByCategory($_GET['category']);
-
         return new View('products/index.twig', [
             'products' => $products
         ]);
@@ -45,16 +48,23 @@ class ProductsController
     {
         // validate
 
-        $product = new Product(
-            Uuid::uuid4(),
-            $_POST['title'],
-            $_POST['category'],
-            $_POST['quantity']
-        );
+        try {
+            $this->validator->validateProductFields($_POST);
 
-        $this->productsRepository->save($product);
+            $product = new Product(
+                Uuid::uuid4(),
+                $_POST['title'],
+                $_POST['category'],
+                $_POST['quantity']
+            );
 
-        Redirect::url('/products');
+            $this->productsRepository->save($product);
+            Redirect::url('/products');
+        } catch (FormValidationException $exception)
+        {
+            $_SESSION['_errors'] = $this->validator->getErrors();
+            Redirect::url('products/create');
+        }
     }
 
     public function delete(array $vars)
@@ -84,14 +94,17 @@ class ProductsController
     public function edit(array $vars): void
     {
         $id = $vars['id'] ?? null;
-        if ($id == null) header('Location: /');
-        $product = $this->productsRepository->getOne($id);
-        if ($product != null)
-        {
-            $this->productsRepository->edit($product);
-        }
+        try {
+            $this->validator->validateProductFields($_POST);
 
-        Redirect::url('/');
+            $product = $this->productsRepository->getOne($id);
+            $this->productsRepository->edit($product);
+            Redirect::url('/');
+        } catch (FormValidationException $exception)
+        {
+            $_SESSION['_errors'] = $this->validator->getErrors();
+            Redirect::url("/products/{$id}/edit");
+        }
     }
 
 }
