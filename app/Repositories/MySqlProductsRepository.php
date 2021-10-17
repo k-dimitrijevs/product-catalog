@@ -100,4 +100,27 @@ class MySqlProductsRepository implements ProductsRepository
         ]);
     }
 
+    public function searchByCategory(string $category): ProductsCollection
+    {
+        $sql = "SELECT * FROM products WHERE category = '{$category}' ORDER BY created_at DESC";
+        $statement = $this->connection->query($sql);
+        $statement->execute();
+
+        $products = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $collection = new ProductsCollection();
+
+        foreach ($products as $product)
+        {
+            $collection->add(new Product(
+                $product['id'],
+                $product['title'],
+                $product['category'],
+                $product['quantity'],
+                $product['created_at'],
+                $product['updated_at'],
+            ));
+        }
+
+        return $collection;
+    }
 }

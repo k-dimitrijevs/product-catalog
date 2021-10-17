@@ -11,7 +11,7 @@ class Product
     private string $category;
     private int $quantity;
     private string $createdAt;
-    private ?string $updatedAt = null;
+    private ?string $updatedAt;
 
     public function __construct(string $id, string $title, string $category, int $quantity, ?string $createdAt = null, ?string $updatedAt = null)
     {

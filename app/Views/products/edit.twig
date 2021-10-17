@@ -2,26 +2,30 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <h3 class="edit">Edit product:</h3>
+            <h3>Edit product:</h3>
         </div>
         <div class="row">
             <div class="form-group">
                 <form action="/products/{{ products.id }}/edit" method="post">
                     <label for="title" class="form-label">Title:</label>
-                    <input type="text" class="form-control" name="title" value="{{ products.title }}" required/><br>
+                    <input type="text" class="form-control w-50" name="title" value="{{ products.title }}" required/><br>
                     <label for="category" class="form-label">Category:</label>
-                    <select name="category" id="category" required>
+                    <select name="category" id="category" class="form-select w-25" required>
                         <option value="Components">Components</option>
                         <option value="Accessories">Accessories</option>
                         <option value="Storage">Storage</option>
-                    </select>
+                    </select><br>
                     <label for="quantity" class="form-label">Quantity:</label>
-                    <input type="number" class="form-control" name="quantity" placeholder="Quantity">
+                    <input type="number" class="form-control w-25" name="quantity" value="{{ products.quantity }}" required><br>
 
-                    <button type="submit" name="edit" class="btn btn-primary">Save</button><br><br>
+                    <button type="submit" name="edit" class="btn btn-success">
+                        <i class="fa fa-save"></i> Save
+                    </button><br><br>
                 </form>
             </div>
         </div>
-        <a href="/products" class="btn btn-primary">BACK</a>
+        <a href="/products" class="btn btn-primary btnBack">
+            <i class="fa fa-arrow-left"></i> Back
+        </a>
     </div>
 {% endblock %}

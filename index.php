@@ -11,6 +11,7 @@ session_start();
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/', 'ProductsController@index');
     $r->addRoute('GET', '/products', 'ProductsController@index');
+    $r->addRoute('GET', '/products/search', 'ProductsController@search');
     $r->addRoute('GET', '/products/create', 'ProductsController@create');
     $r->addRoute('POST', '/products', 'ProductsController@store');
     $r->addRoute('POST', '/products/{id}', 'ProductsController@delete');

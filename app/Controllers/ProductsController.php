@@ -27,6 +27,15 @@ class ProductsController
         ]);
     }
 
+    public function search(): View
+    {
+        $products = $this->productsRepository->searchByCategory($_GET['category']);
+
+        return new View('products/index.twig', [
+            'products' => $products
+        ]);
+    }
+
     public function create()
     {
         return new View('products/create.twig');
@@ -36,14 +45,14 @@ class ProductsController
     {
         // validate
 
-        $task = new Product(
+        $product = new Product(
             Uuid::uuid4(),
             $_POST['title'],
             $_POST['category'],
             $_POST['quantity']
         );
 
-        $this->productsRepository->save($task);
+        $this->productsRepository->save($product);
 
         Redirect::url('/products');
     }
@@ -53,10 +62,10 @@ class ProductsController
         $id = $vars['id'] ?? null;
         if ($id == null) header('Location: /');
 
-        $task = $this->productsRepository->getOne($id);
-        if ($task != null)
+        $product = $this->productsRepository->getOne($id);
+        if ($product != null)
         {
-            $this->productsRepository->delete($task);
+            $this->productsRepository->delete($product);
         }
 
         Redirect::url('/');
