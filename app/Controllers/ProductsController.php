@@ -26,10 +26,8 @@ class ProductsController
     public function index(): View
     {
 //        var_dump($_SESSION['id']);die;
-        if (empty($_SESSION['id']))
-        {
-            Redirect::url('login');
-        }
+        if (! Auth::loggedIn()) Redirect::url('login');
+
         $products = $this->productsRepository->getAll($_SESSION['id']);
 
         return new View('products/index.twig', [
