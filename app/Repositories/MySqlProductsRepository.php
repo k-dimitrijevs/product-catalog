@@ -26,11 +26,12 @@ class MySqlProductsRepository implements ProductsRepository
         }
     }
 
-    public function getAll(): ProductsCollection
+    public function getAll(string $userId): ProductsCollection
     {
-        $sql = "SELECT * FROM products ORDER BY created_at DESC";
-        $statement = $this->connection->query($sql);
-        $products = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC";
+        $statement = $this->connection->prepare($sql);
+        $statement->execute([$userId]);
+        $products = $statement->fetchAll();
         $collection = new ProductsCollection();
 
         foreach ($products as $product)
@@ -40,6 +41,7 @@ class MySqlProductsRepository implements ProductsRepository
                 $product['title'],
                 $product['category'],
                 $product['quantity'],
+                $product['user_id'],
                 $product['created_at'],
                 $product['updated_at'],
             ));
@@ -60,6 +62,7 @@ class MySqlProductsRepository implements ProductsRepository
             $product['title'],
             $product['category'],
             $product['quantity'],
+            $product['user_id'],
             $product['created_at'],
             $product['updated_at'],
         );
@@ -67,13 +70,14 @@ class MySqlProductsRepository implements ProductsRepository
 
     public function save(Product $product): void
     {
-        $sql = "INSERT INTO products (id, title, category, quantity, created_at) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO products (id, title, category, quantity, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([
             $product->getId(),
             $product->getTitle(),
             $product->getCategory(),
             $product->getQuantity(),
+            $product->getUserId(),
             $product->getCreatedAt()
         ]);
     }
@@ -100,11 +104,11 @@ class MySqlProductsRepository implements ProductsRepository
         ]);
     }
 
-    public function searchByCategory(string $category): ProductsCollection
+    public function searchByCategory(string $category, string $userId): ProductsCollection
     {
-        $sql = "SELECT * FROM products WHERE category = '{$category}' ORDER BY created_at DESC";
-        $statement = $this->connection->query($sql);
-        $statement->execute();
+        $sql = "SELECT * FROM products WHERE category = '{$category}' and user_id = ? ORDER BY created_at DESC";
+        $statement = $this->connection->prepare($sql);
+        $statement->execute([$userId]);
 
         $products = $statement->fetchAll(PDO::FETCH_ASSOC);
         $collection = new ProductsCollection();
@@ -116,6 +120,7 @@ class MySqlProductsRepository implements ProductsRepository
                 $product['title'],
                 $product['category'],
                 $product['quantity'],
+                $product['user_id'],
                 $product['created_at'],
                 $product['updated_at'],
             ));

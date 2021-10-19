@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Auth;
 use App\Models\Product;
 use App\Redirect;
 use App\Repositories\MySqlProductsRepository;
@@ -24,7 +25,12 @@ class ProductsController
 
     public function index(): View
     {
-        $products = $this->productsRepository->getAll();
+//        var_dump($_SESSION['id']);die;
+        if (empty($_SESSION['id']))
+        {
+            Redirect::url('login');
+        }
+        $products = $this->productsRepository->getAll($_SESSION['id']);
 
         return new View('products/index.twig', [
             'products' => $products
@@ -33,7 +39,7 @@ class ProductsController
 
     public function search(): View
     {
-        $products = $this->productsRepository->searchByCategory($_GET['category']);
+        $products = $this->productsRepository->searchByCategory($_GET['category'], $_SESSION['id']);
         return new View('products/index.twig', [
             'products' => $products
         ]);
@@ -55,7 +61,8 @@ class ProductsController
                 Uuid::uuid4(),
                 $_POST['title'],
                 $_POST['category'],
-                $_POST['quantity']
+                $_POST['quantity'],
+                $_SESSION['id']
             );
 
             $this->productsRepository->save($product);

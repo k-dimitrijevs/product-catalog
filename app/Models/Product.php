@@ -10,15 +10,17 @@ class Product
     private string $title;
     private string $category;
     private int $quantity;
+    private string $userId;
     private string $createdAt;
     private ?string $updatedAt;
 
-    public function __construct(string $id, string $title, string $category, int $quantity, ?string $createdAt = null, ?string $updatedAt = null)
+    public function __construct(string $id, string $title, string $category, int $quantity, string $userId, ?string $createdAt = null, ?string $updatedAt = null)
     {
         $this->id = $id;
         $this->title = $title;
         $this->category = $category;
         $this->quantity = $quantity;
+        $this->userId = $userId;
         $this->createdAt = $createdAt ?? Carbon::now();
         $this->updatedAt = $updatedAt;
     }
@@ -51,6 +53,11 @@ class Product
     public function getUpdatedAt(): ?string
     {
         return $this->updatedAt;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
     }
 
     public function toArray(): array

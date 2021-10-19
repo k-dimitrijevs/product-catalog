@@ -41,6 +41,7 @@ class UsersController
 //        }
         if ($user !== null && password_verify($_POST['password'], $user->getPassword()))
         {
+            $_SESSION['id'] = $user->getId();
             $_SESSION['email'] = $user->getEmail();
             $_SESSION['username'] = $user->getUsername();
             Redirect::url('/products');
