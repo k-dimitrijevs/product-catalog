@@ -8,4 +8,9 @@ class Auth
     {
         return isset($_SESSION['email']);
     }
+
+    public static function unsetErrors(): void
+    {
+        unset($_SESSION['_errors']);
+    }
 }

@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Redirect;
 use App\Repositories\MySqlProductsRepository;
 use App\Repositories\ProductsRepository;
-use App\Validations\FormValidationException;
+use App\Exceptions\FormValidationException;
 use App\Validations\ProductsFormValidation;
 use App\View;
 use Ramsey\Uuid\Uuid;
@@ -25,9 +25,7 @@ class ProductsController
 
     public function index(): View
     {
-//        var_dump($_SESSION['id']);die;
-        if (! Auth::loggedIn()) Redirect::url('login');
-
+        Auth::unsetErrors();
         $products = $this->productsRepository->getAll($_SESSION['id']);
 
         return new View('products/index.twig', [
@@ -45,13 +43,12 @@ class ProductsController
 
     public function create()
     {
+//        if (! Auth::loggedIn()) Redirect::url('/login');
         return new View('products/create.twig');
     }
 
     public function store()
     {
-        // validate
-
         try {
             $this->validator->validateProductFields($_POST);
 

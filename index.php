@@ -1,12 +1,13 @@
 <?php
 
+use App\Middlewares\AuthMiddleware;
+use App\Middlewares\GuestMiddleware;
 use App\View;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 require 'vendor/autoload.php';
 
 session_start();
-
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/', 'ProductsController@index');
@@ -58,6 +59,43 @@ switch ($routeInfo[0]) {
         $handler = $routeInfo[1];
         $vars = $routeInfo[2];
         // ... call $handler with $vars
+
+        $middlewares = [
+            "ProductsController@index" => [
+                AuthMiddleware::class
+            ],
+            "ProductsController@create" => [
+                AuthMiddleware::class
+            ],
+            "ProductsController@delete" => [
+                AuthMiddleware::class
+            ],
+            "ProductsController@editView" => [
+                AuthMiddleware::class
+            ],
+            "ProductsController@edit" => [
+                AuthMiddleware::class
+            ],
+
+            "UsersController@loginView" =>[
+                GuestMiddleware::class
+            ],
+            "UsersController@login" =>[
+                GuestMiddleware::class
+            ],
+            "UsersController@registerView" =>[
+                GuestMiddleware::class
+            ],
+            "UsersController@register" =>[
+                GuestMiddleware::class
+            ]
+        ];
+
+        if (array_key_exists($handler, $middlewares)) {
+            foreach ($middlewares[$handler] as $middleware) {
+                (new $middleware)->handle();
+            }
+        }
 
         [$controller, $method] = explode('@', $handler);
         $controller = 'App\Controllers\\' . $controller;

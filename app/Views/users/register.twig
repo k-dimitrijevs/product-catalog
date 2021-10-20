@@ -5,6 +5,9 @@
             <div class="col-6">
                 <h3>REGISTER:</h3>
                 <div class="form-group">
+                    {% for error in session._errors %}
+                        <div style="color:red;"><b>{{ error }}</b></div><br/>
+                    {% endfor %}
                     <form action="/register" method="post">
                         <label for="email" class="form-label">E-mail:</label>
                         <input type="email" class="form-control w-75" name="email" placeholder="Enter your e-mail" required/><br>

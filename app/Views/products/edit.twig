@@ -25,6 +25,9 @@
         </div>
         <div class="row">
             <div class="form-group">
+                {% for error in session._errors %}
+                    <div style="color:red;"><b>{{ error }}</b></div><br/>
+                {% endfor %}
                 <form action="/products/{{ products.id }}/edit" method="post">
                     <label for="title" class="form-label">Title:</label>
                     <input type="text" class="form-control w-50" name="title" value="{{ products.title }}" required/><br>

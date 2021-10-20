@@ -26,6 +26,9 @@
         </div>
         <div class="row">
             <div class="form-group">
+                {% for error in session._errors %}
+                    <p style="color:red;"><b>{{ error }}</b></p>
+                {% endfor %}
                 <form action="/products" method="post">
                     <label for="title" class="form-label">Title:</label>
                     <input type="text" class="form-control w-50" name="title" required/><br>
