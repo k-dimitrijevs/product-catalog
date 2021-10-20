@@ -8,7 +8,7 @@
                 <h3>Please enter your e-mail and password</h3>
                 <div class="form-group">
                     {% for error in session._errors %}
-                        <div style="color:red;"><b>{{ error }}</b></div><br/>
+                        <p style="color:red;"><b>{{ error }}</b></p><br/>
                     {% endfor %}
                     <form action="/login" method="post">
                         <label for="email" class="form-label">E-mail:</label>
