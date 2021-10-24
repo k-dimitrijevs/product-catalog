@@ -31,11 +31,9 @@ class ProductsController
     {
         Auth::unsetErrors();
         $products = $this->productsRepository->getAll($_SESSION['id']);
-        $tags = $this->tagsRepository->getAll();
 
         return new View('products/index.twig', [
             'products' => $products,
-            'tags' => $tags
         ]);
     }
 
@@ -64,7 +62,8 @@ class ProductsController
                 $_POST['title'],
                 $_POST['category'],
                 $_POST['quantity'],
-                $_SESSION['id']
+                $_SESSION['id'],
+                $_POST['tags']
             );
 
             $tags = array_slice($_POST, 3);

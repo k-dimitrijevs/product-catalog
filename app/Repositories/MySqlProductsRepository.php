@@ -34,6 +34,8 @@ class MySqlProductsRepository implements ProductsRepository
         $products = $statement->fetchAll();
         $collection = new ProductsCollection();
 
+        $tagsRepository = new MySqlTagsRepository();
+
         foreach ($products as $product)
         {
             $collection->add(new Product(
@@ -44,6 +46,8 @@ class MySqlProductsRepository implements ProductsRepository
                 $product['user_id'],
                 $product['created_at'],
                 $product['updated_at'],
+                $tagsRepository->getProductTags($product['id'])
+
             ));
         }
 
@@ -56,6 +60,7 @@ class MySqlProductsRepository implements ProductsRepository
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([$id]);
         $product = $stmt->fetch();
+
 
         return new Product(
             $product['id'],
@@ -72,13 +77,16 @@ class MySqlProductsRepository implements ProductsRepository
     {
         $sql = "INSERT INTO products (id, title, category, quantity, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->connection->prepare($sql);
+
+        $tagsRepository = new MySqlTagsRepository();
+
         $stmt->execute([
             $product->getId(),
             $product->getTitle(),
             $product->getCategory(),
             $product->getQuantity(),
             $product->getUserId(),
-            $product->getCreatedAt()
+            $product->getCreatedAt(),
         ]);
     }
 
