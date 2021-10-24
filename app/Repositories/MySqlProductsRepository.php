@@ -78,8 +78,6 @@ class MySqlProductsRepository implements ProductsRepository
         $sql = "INSERT INTO products (id, title, category, quantity, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $this->connection->prepare($sql);
 
-        $tagsRepository = new MySqlTagsRepository();
-
         $stmt->execute([
             $product->getId(),
             $product->getTitle(),

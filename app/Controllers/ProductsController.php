@@ -100,9 +100,11 @@ class ProductsController
     {
         $id = $vars['id'] ?? null;
         $products = $this->productsRepository->getOne($id);
+        $tags = $this->tagsRepository->getAll()->getTags();
 
         return new View('products/edit.twig', [
-            'products' => $products
+            'products' => $products,
+            'tags' => $tags
         ]);
     }
 
@@ -113,6 +115,14 @@ class ProductsController
             $this->validator->validateProductFields($_POST);
 
             $product = $this->productsRepository->getOne($id);
+
+            $tags = array_slice($_POST, 3);
+
+            foreach ($tags as $tag)
+            {
+                $this->tagsRepository->setProductTags($id, $tag);
+            }
+
             $this->productsRepository->edit($product);
             Redirect::url('/');
         } catch (FormValidationException $exception)
