@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\TagsRepository;
 
 use App\Models\Tag;
 use App\Models\Collections\TagsCollection;

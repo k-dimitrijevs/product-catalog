@@ -1,34 +1,17 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\UsersRepository;
 
 use App\Models\User;
+use App\MySQLConfig;
 use PDO;
-use PDOException;
 
-class MysqlUsersRepository implements UsersRepository
+class MysqlUsersRepository extends MySQLConfig implements UsersRepository
 {
-
-    private PDO $connection;
-
-    public function __construct()
-    {
-        require_once "config.php";
-
-        $dsn = "mysql:host=$host;dbname=$db;charset=UTF8";
-        try
-        {
-            $this->connection = new PDO($dsn, $user, $pass);
-        } catch (PDOException $e)
-        {
-            throw new PDOException($e->getMessage(), (int)$e->getCode());
-        }
-    }
-
     public function register(User $user): void
     {
         $sql = "INSERT INTO users (id, email, username, password) VALUES (:id, :email, :username, :password)";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
         $stmt->execute([
             ':id' => $user->getId(),
             ':email' => $user->getEmail(),
@@ -40,7 +23,7 @@ class MysqlUsersRepository implements UsersRepository
     public function getByEmail(string $email): ?User
     {
         $sql = "SELECT * FROM users WHERE email = ?";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
         $stmt->execute([$email]);
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);

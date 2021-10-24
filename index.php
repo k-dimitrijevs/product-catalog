@@ -1,15 +1,16 @@
 <?php
 
-use App\Container;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\GuestMiddleware;
-use App\Repositories\ProductsRepository;
 use App\View;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+
 require 'vendor/autoload.php';
 
 session_start();
+
+$container = new \DI\Container();
 
 $dispatcher = FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/', 'ProductsController@index');
@@ -99,11 +100,12 @@ switch ($routeInfo[0]) {
             }
         }
 
-        // Dependency injector goes here ???
-
         [$controller, $method] = explode('@', $handler);
-        $controller = 'App\Controllers\\' . $controller;
-        $controller = new $controller();
+        $controller = "App\\Controllers\\" . $controller;
+        try {
+            $controller = $container->get($controller);
+        } catch (\DI\DependencyException | \DI\NotFoundException $e) {
+        }
         $response = $controller->$method($vars);
 
         if($response instanceof View)

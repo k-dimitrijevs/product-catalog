@@ -1,35 +1,20 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Repositories\ProductsRepository;
 
 use App\Models\Collections\ProductsCollection;
 use App\Models\Product;
+use App\MySQLConfig;
+use App\Repositories\TagsRepository\MySqlTagsRepository;
 use Carbon\Carbon;
 use PDO;
-use PDOException;
 
-class MySqlProductsRepository implements ProductsRepository
+class MySqlProductsRepository extends MySQLConfig implements ProductsRepository
 {
-    private PDO $connection;
-
-    public function __construct()
-    {
-        require_once "config.php";
-
-        $dsn = "mysql:host=$host;dbname=$db;charset=UTF8";
-        try
-        {
-            $this->connection = new PDO($dsn, $user, $pass);
-        } catch (PDOException $e)
-        {
-            throw new PDOException($e->getMessage(), (int)$e->getCode());
-        }
-    }
-
     public function getAll(string $userId): ProductsCollection
     {
         $sql = "SELECT * FROM products WHERE user_id = ? ORDER BY created_at DESC";
-        $statement = $this->connection->prepare($sql);
+        $statement = $this->connect()->prepare($sql);
         $statement->execute([$userId]);
         $products = $statement->fetchAll();
         $collection = new ProductsCollection();
@@ -57,7 +42,7 @@ class MySqlProductsRepository implements ProductsRepository
     public function getOne(string $id): ?Product
     {
         $sql = "SELECT * FROM products WHERE id = ?";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
         $stmt->execute([$id]);
         $product = $stmt->fetch();
 
@@ -76,7 +61,7 @@ class MySqlProductsRepository implements ProductsRepository
     public function save(Product $product): void
     {
         $sql = "INSERT INTO products (id, title, category, quantity, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
 
         $stmt->execute([
             $product->getId(),
@@ -91,7 +76,7 @@ class MySqlProductsRepository implements ProductsRepository
     public function delete(Product $product): void
     {
         $sql = "DELETE FROM products WHERE id = ?";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
         $stmt->execute([$product->getId()]);
     }
 
@@ -100,7 +85,7 @@ class MySqlProductsRepository implements ProductsRepository
         $sql = "UPDATE products 
                 SET title = ?, category = ?, quantity = ?, updated_at = ?
                 WHERE id = ?";
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->connect()->prepare($sql);
         $stmt->execute([
             $_POST['title'],
             $_POST['category'],
@@ -113,7 +98,7 @@ class MySqlProductsRepository implements ProductsRepository
     public function searchByCategory(string $category, string $userId): ProductsCollection
     {
         $sql = "SELECT * FROM products WHERE category = '{$category}' and user_id = ? ORDER BY created_at DESC";
-        $statement = $this->connection->prepare($sql);
+        $statement = $this->connect()->prepare($sql);
         $statement->execute([$userId]);
 
         $products = $statement->fetchAll(PDO::FETCH_ASSOC);

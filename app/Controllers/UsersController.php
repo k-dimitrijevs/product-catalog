@@ -6,8 +6,7 @@ use App\Auth;
 use App\Exceptions\FormValidationException;
 use App\Models\User;
 use App\Redirect;
-use App\Repositories\MysqlUsersRepository;
-use App\Repositories\UsersRepository;
+use App\Repositories\UsersRepository\MysqlUsersRepository;
 use App\Validations\LoginFormValidation;
 use App\Validations\RegisterFormValidation;
 use App\View;
@@ -15,15 +14,19 @@ use Ramsey\Uuid\Uuid;
 
 class UsersController
 {
-    private UsersRepository $usersRepository;
+    private MySqlUsersRepository $usersRepository;
     private LoginFormValidation $loginValidator;
     private RegisterFormValidation $registerValidator;
 
-    public function __construct()
+    public function __construct(
+        MySqlUsersRepository $usersRepository,
+        LoginFormValidation $loginValidator,
+        RegisterFormValidation $registerValidator
+    )
     {
-        $this->usersRepository = new MysqlUsersRepository();
-        $this->loginValidator = new LoginFormValidation();
-        $this->registerValidator = new RegisterFormValidation();
+        $this->usersRepository = $usersRepository;
+        $this->loginValidator = $loginValidator;
+        $this->registerValidator = $registerValidator;
     }
 
     public function login(): void

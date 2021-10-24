@@ -5,7 +5,9 @@
     "nesbot/carbon": "^2.53",
     "twig/twig": "^3.0",
     "ramsey/uuid": "^4.2",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "php-di/php-di": "^6.3",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {

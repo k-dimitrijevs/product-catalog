@@ -5,26 +5,28 @@ namespace App\Controllers;
 use App\Auth;
 use App\Models\Product;
 use App\Redirect;
-use App\Repositories\MySqlProductsRepository;
-use App\Repositories\MySqlTagsRepository;
-use App\Repositories\ProductsRepository;
+use App\Repositories\ProductsRepository\MySqlProductsRepository;
+use App\Repositories\TagsRepository\MySqlTagsRepository;
 use App\Exceptions\FormValidationException;
-use App\Repositories\TagsRepository;
 use App\Validations\ProductsFormValidation;
 use App\View;
 use Ramsey\Uuid\Uuid;
 
 class ProductsController
 {
-    private ProductsRepository $productsRepository;
-    private TagsRepository $tagsRepository;
+    private MySqlProductsRepository $productsRepository;
+    private MySqlTagsRepository $tagsRepository;
     private ProductsFormValidation $validator;
 
-    public function __construct()
+    public function __construct(
+        MySqlProductsRepository $productsRepository,
+        MySqlTagsRepository $tagsRepository,
+        ProductsFormValidation $validator
+    )
     {
-        $this->productsRepository = new MySqlProductsRepository();
-        $this->tagsRepository = new MySqlTagsRepository();
-        $this->validator = new ProductsFormValidation();
+        $this->productsRepository = $productsRepository;
+        $this->tagsRepository = $tagsRepository;
+        $this->validator = $validator;
     }
 
     public function index(): View
