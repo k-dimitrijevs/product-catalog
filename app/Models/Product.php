@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Repositories\MySqlTagsRepository;
 use Carbon\Carbon;
 
 class Product
@@ -13,6 +14,7 @@ class Product
     private string $userId;
     private string $createdAt;
     private ?string $updatedAt;
+    private MySqlTagsRepository $tagsRepository;
 
     public function __construct(string $id, string $title, string $category, int $quantity, string $userId, ?string $createdAt = null, ?string $updatedAt = null)
     {
@@ -23,6 +25,7 @@ class Product
         $this->userId = $userId;
         $this->createdAt = $createdAt ?? Carbon::now();
         $this->updatedAt = $updatedAt;
+        $this->tagsRepository = new MySqlTagsRepository();
     }
 
     public function getId(): string
@@ -58,6 +61,11 @@ class Product
     public function getUserId(): ?string
     {
         return $this->userId;
+    }
+
+    public function getTagsRepository(): string
+    {
+        return $this->tagsRepository->getProductTags($this->id);
     }
 
     public function toArray(): array

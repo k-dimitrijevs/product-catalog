@@ -6,8 +6,10 @@ use App\Auth;
 use App\Models\Product;
 use App\Redirect;
 use App\Repositories\MySqlProductsRepository;
+use App\Repositories\MySqlTagsRepository;
 use App\Repositories\ProductsRepository;
 use App\Exceptions\FormValidationException;
+use App\Repositories\TagsRepository;
 use App\Validations\ProductsFormValidation;
 use App\View;
 use Ramsey\Uuid\Uuid;
@@ -15,11 +17,13 @@ use Ramsey\Uuid\Uuid;
 class ProductsController
 {
     private ProductsRepository $productsRepository;
+    private TagsRepository $tagsRepository;
     private ProductsFormValidation $validator;
 
     public function __construct()
     {
         $this->productsRepository = new MySqlProductsRepository();
+        $this->tagsRepository = new MySqlTagsRepository();
         $this->validator = new ProductsFormValidation();
     }
 
@@ -27,9 +31,11 @@ class ProductsController
     {
         Auth::unsetErrors();
         $products = $this->productsRepository->getAll($_SESSION['id']);
+        $tags = $this->tagsRepository->getAll();
 
         return new View('products/index.twig', [
-            'products' => $products
+            'products' => $products,
+            'tags' => $tags
         ]);
     }
 
@@ -44,7 +50,8 @@ class ProductsController
     public function create()
     {
 //        if (! Auth::loggedIn()) Redirect::url('/login');
-        return new View('products/create.twig');
+        $tags = $this->tagsRepository->getAll()->getTags();
+        return new View('products/create.twig', ['tags' => $tags]);
     }
 
     public function store()
@@ -59,6 +66,13 @@ class ProductsController
                 $_POST['quantity'],
                 $_SESSION['id']
             );
+
+            $tags = array_slice($_POST, 3);
+
+            foreach ($tags as $tag)
+            {
+                $this->tagsRepository->setProductTags($product->getId(), $tag);
+            }
 
             $this->productsRepository->save($product);
             Redirect::url('/products');

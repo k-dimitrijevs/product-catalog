@@ -1,7 +1,9 @@
 <?php
 
+use App\Container;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\GuestMiddleware;
+use App\Repositories\ProductsRepository;
 use App\View;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -96,6 +98,8 @@ switch ($routeInfo[0]) {
                 (new $middleware)->handle();
             }
         }
+
+        // Dependency injector goes here ???
 
         [$controller, $method] = explode('@', $handler);
         $controller = 'App\Controllers\\' . $controller;

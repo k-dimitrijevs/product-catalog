@@ -55,7 +55,10 @@
                     <p>Quantity: {{ product.quantity }}</p>
                     <p>Created at: {{ product.createdAt }}</p>
                     <p>Last edit: {{ product.updatedAt }}</p>
-
+                    <p>TAGS: {{ product.getTags }}</p>
+                    {% if product.getTags is empty %}
+                        <p>noop</p>
+                    {% endif %}
                     <form method="post" action="/products/{{ product.id }}" class="btnForm">
                         <button onclick="return confirm('Are you sure you want to delete this item?');" type="submit" class="btn btn-danger">
                             <i class="fa fa-trash"></i>
@@ -70,6 +73,7 @@
                     </a>
                 </div>
             {% endfor %}
+
         </div>
     </div>
 {% endblock %}

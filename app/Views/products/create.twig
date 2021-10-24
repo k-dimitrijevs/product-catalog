@@ -41,6 +41,12 @@
                     <label for="quantity" class="form-label">Quantity:</label>
                     <input type="number" class="form-control w-25" name="quantity" placeholder="Quantity"><br>
 
+                    <h6>Tags:</h6>
+                    {% for tag in tags %}
+                        <input type="checkbox" id="{{ tag.name }}" name="{{ tag.name }}" value="{{ tag.id }}">
+                        <label for="{{ tag.name }}">{{ tag.name }}</label><br>
+                    {% endfor %}
+                    <br>
                     <button type="submit" name="edit" class="btn btn-success">
                         <i class="fa fa-save"></i> Save
                     </button><br><br>
