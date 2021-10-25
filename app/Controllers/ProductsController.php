@@ -3,79 +3,88 @@
 namespace App\Controllers;
 
 use App\Auth;
-use App\Models\Product;
 use App\Redirect;
-use App\Repositories\ProductsRepository\MySqlProductsRepository;
-use App\Repositories\TagsRepository\MySqlTagsRepository;
 use App\Exceptions\FormValidationException;
+use App\Services\ProductsServices\DeleteProductService;
+use App\Services\ProductsServices\EditProductService;
+use App\Services\ProductsServices\ListProductsService;
+use App\Services\ProductsServices\ListProductTagsService;
+use App\Services\ProductsServices\SaveProductRequest;
+use App\Services\ProductsServices\SaveProductService;
+use App\Services\ProductsServices\SearchOneProductService;
+use App\Services\ProductsServices\SearchProductsService;
 use App\Validations\ProductsFormValidation;
 use App\View;
 use Ramsey\Uuid\Uuid;
 
 class ProductsController
 {
-    private MySqlProductsRepository $productsRepository;
-    private MySqlTagsRepository $tagsRepository;
     private ProductsFormValidation $validator;
+    private ListProductsService $listProductsService;
+    private SearchProductsService $searchProductsService;
+    private SearchOneProductService $searchOneProductsService;
+    private ListProductTagsService $listProductTagsService;
+    private SaveProductService $saveProductService;
+    private DeleteProductService $deleteProductService;
+    private EditProductService $editProductService;
 
     public function __construct(
-        MySqlProductsRepository $productsRepository,
-        MySqlTagsRepository $tagsRepository,
-        ProductsFormValidation $validator
+        ProductsFormValidation $validator,
+        ListProductsService $listProductsService,
+        SearchProductsService $searchProductsService,
+        SearchOneProductService $searchOneProductsService,
+        ListProductTagsService $listProductTagsService,
+        SaveProductService $saveProductService,
+        DeleteProductService $deleteProductService,
+        EditProductService $editProductService
     )
     {
-        $this->productsRepository = $productsRepository;
-        $this->tagsRepository = $tagsRepository;
         $this->validator = $validator;
+        $this->listProductsService = $listProductsService;
+        $this->searchProductsService = $searchProductsService;
+        $this->searchOneProductsService = $searchOneProductsService;
+        $this->listProductTagsService = $listProductTagsService;
+        $this->saveProductService = $saveProductService;
+        $this->deleteProductService = $deleteProductService;
+        $this->editProductService = $editProductService;
     }
 
     public function index(): View
     {
         Auth::unsetErrors();
-        $products = $this->productsRepository->getAll($_SESSION['id']);
-
         return new View('products/index.twig', [
-            'products' => $products,
+            'products' => $this->listProductsService->listProducts(),
         ]);
     }
 
     public function search(): View
     {
-        $products = $this->productsRepository->searchByCategory($_GET['category'], $_SESSION['id']);
         return new View('products/index.twig', [
-            'products' => $products
+            'products' => $this->searchProductsService->searchProducts()
         ]);
     }
 
     public function create()
     {
-//        if (! Auth::loggedIn()) Redirect::url('/login');
-        $tags = $this->tagsRepository->getAll()->getTags();
-        return new View('products/create.twig', ['tags' => $tags]);
+        return new View('products/create.twig', [
+            'tags' => $this->listProductTagsService->listTags()
+        ]);
     }
 
     public function store()
     {
         try {
             $this->validator->validateProductFields($_POST);
-
-            $product = new Product(
-                Uuid::uuid4(),
-                $_POST['title'],
-                $_POST['category'],
-                $_POST['quantity'],
-                $_SESSION['id'],
-                $_POST['tags']
+            $this->saveProductService->saveProduct(
+                new SaveProductRequest(
+                    Uuid::uuid4(),
+                    $_POST['title'],
+                    $_POST['category'],
+                    $_POST['quantity'],
+                    $_SESSION['id'],
+                    $_POST['tags']
+                )
             );
-
-            $tags = array_slice($_POST, 3);
-
-            foreach ($tags as $tag)
-            {
-                $this->tagsRepository->setProductTags($product->getId(), $tag);
-            }
-
-            $this->productsRepository->save($product);
             Redirect::url('/products');
         } catch (FormValidationException $exception)
         {
@@ -86,51 +95,28 @@ class ProductsController
 
     public function delete(array $vars)
     {
-        $id = $vars['id'] ?? null;
-        if ($id == null) header('Location: /');
-
-        $product = $this->productsRepository->getOne($id);
-        if ($product != null)
-        {
-            $this->productsRepository->delete($product);
-        }
-
+        $this->deleteProductService->deleteProduct($vars['id']);
         Redirect::url('/');
     }
 
     public function editView(array $vars): View
     {
-        $id = $vars['id'] ?? null;
-        $products = $this->productsRepository->getOne($id);
-        $tags = $this->tagsRepository->getAll()->getTags();
-
         return new View('products/edit.twig', [
-            'products' => $products,
-            'tags' => $tags
+            'products' => $this->searchOneProductsService->searchProducts($vars['id']),
+            'tags' => $this->listProductTagsService->listTags()
         ]);
     }
 
     public function edit(array $vars): void
     {
-        $id = $vars['id'] ?? null;
         try {
             $this->validator->validateProductFields($_POST);
-
-            $product = $this->productsRepository->getOne($id);
-
-            $tags = array_slice($_POST, 3);
-
-            foreach ($tags as $tag)
-            {
-                $this->tagsRepository->setProductTags($id, $tag);
-            }
-
-            $this->productsRepository->edit($product);
+            $this->editProductService->editProduct($vars['id']);
             Redirect::url('/');
         } catch (FormValidationException $exception)
         {
             $_SESSION['_errors'] = $this->validator->getErrors();
-            Redirect::url("/products/{$id}/edit");
+            Redirect::url("/products/{$vars['id']}/edit");
         }
     }
 

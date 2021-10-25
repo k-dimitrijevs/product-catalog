@@ -73,7 +73,7 @@ class MySqlTagsRepository extends MySQLConfig implements TagsRepository
             {
                 foreach ($row as $value)
                 {
-                    $tagNames .= " ({$value}) ";
+                    $tagNames .= "({$value}) ";
                 }
             }
         }

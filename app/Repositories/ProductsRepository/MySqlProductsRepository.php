@@ -104,6 +104,8 @@ class MySqlProductsRepository extends MySQLConfig implements ProductsRepository
         $products = $statement->fetchAll(PDO::FETCH_ASSOC);
         $collection = new ProductsCollection();
 
+        $tagsRepository = new MySqlTagsRepository();
+
         foreach ($products as $product)
         {
             $collection->add(new Product(
@@ -114,6 +116,7 @@ class MySqlProductsRepository extends MySQLConfig implements ProductsRepository
                 $product['user_id'],
                 $product['created_at'],
                 $product['updated_at'],
+                $tagsRepository->getProductTags($product['id'])
             ));
         }
 

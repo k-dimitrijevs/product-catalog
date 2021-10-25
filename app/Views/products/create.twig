@@ -42,7 +42,7 @@
                     <input type="number" class="form-control w-25" name="quantity" placeholder="Quantity"><br>
 
                     <h6>Tags:</h6>
-                    {% for tag in tags %}
+                    {% for tag in tags.tags %}
                         <input type="checkbox" id="{{ tag.name }}" name="{{ tag.name }}" value="{{ tag.id }}">
                         <label for="{{ tag.name }}">{{ tag.name }}</label><br>
                     {% endfor %}

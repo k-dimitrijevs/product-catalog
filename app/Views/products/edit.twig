@@ -40,7 +40,7 @@
                     <label for="quantity" class="form-label">Quantity:</label>
                     <input type="number" class="form-control w-25" name="quantity" value="{{ products.quantity }}" required><br>
 
-                    {% for tag in tags %}
+                    {% for tag in tags.tags %}
                         <input type="checkbox" id="{{ tag.name }}" name="{{ tag.name }}" value="{{ tag.id }}">
                         <label for="{{ tag.name }}">{{ tag.name }}</label><br>
                     {% endfor %}

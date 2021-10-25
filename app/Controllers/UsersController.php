@@ -4,9 +4,10 @@ namespace App\Controllers;
 
 use App\Auth;
 use App\Exceptions\FormValidationException;
-use App\Models\User;
 use App\Redirect;
-use App\Repositories\UsersRepository\MysqlUsersRepository;
+use App\Services\UsersServices\LoginUserService;
+use App\Services\UsersServices\RegisterUserRequest;
+use App\Services\UsersServices\RegisterUserService;
 use App\Validations\LoginFormValidation;
 use App\Validations\RegisterFormValidation;
 use App\View;
@@ -14,26 +15,29 @@ use Ramsey\Uuid\Uuid;
 
 class UsersController
 {
-    private MySqlUsersRepository $usersRepository;
     private LoginFormValidation $loginValidator;
     private RegisterFormValidation $registerValidator;
+    private LoginUserService $loginUserService;
+    private RegisterUserService $registerUserService;
 
     public function __construct(
-        MySqlUsersRepository $usersRepository,
         LoginFormValidation $loginValidator,
-        RegisterFormValidation $registerValidator
+        RegisterFormValidation $registerValidator,
+        LoginUserService $loginUserService,
+        RegisterUserService $registerUserService
     )
     {
-        $this->usersRepository = $usersRepository;
         $this->loginValidator = $loginValidator;
         $this->registerValidator = $registerValidator;
+        $this->loginUserService = $loginUserService;
+        $this->registerUserService = $registerUserService;
     }
 
     public function login(): void
     {
         try
         {
-            $user = $this->usersRepository->getByEmail($_POST['email']);
+            $user = $this->loginUserService->loginUser();
             $this->loginValidator->validateLoginFields($_POST, $user);
 
             $_SESSION['id'] = $user->getId();
@@ -53,17 +57,17 @@ class UsersController
     {
         try
         {
-            $user = $this->usersRepository->getByEmail($_POST['email']);
+            $user = $this->loginUserService->loginUser();
             $this->registerValidator->validateRegisterFields($_POST, $user);
 
-            $user = new User(
+            $this->registerUserService->registerUser(
+                new RegisterUserRequest(
                 Uuid::uuid4(),
                 $_POST['email'],
                 $_POST['username'],
-                password_hash($_POST['password'], PASSWORD_DEFAULT)
+                $_POST['password']
+            )
             );
-
-            $this->usersRepository->register($user);
             Redirect::url('/products');
         } catch (FormValidationException $exception)
         {
@@ -80,7 +84,6 @@ class UsersController
 
     public function loginView(): View
     {
-//        if (Auth::loggedIn()) Redirect::url('/');
         return new View('users/login.twig');
     }
 
